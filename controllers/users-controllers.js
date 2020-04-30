@@ -1,22 +1,6 @@
 const HttpError = require("../models/http-error");
-// const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const User = require("../models/user");
-
-// let DUMMY_USERS = [
-//   {
-//     id: uuidv4(),
-//     name: "Ryan",
-//     email: "r@r.com",
-//     password: "33333",
-//   },
-//   {
-//     id: uuidv4(),
-//     name: "Kay",
-//     email: "k@k.com",
-//     password: "22222",
-//   },
-// ];
 
 const getAllUsers = async (req, res, next) => {
   let users;
@@ -37,11 +21,6 @@ const getAllUsers = async (req, res, next) => {
   res.json({
     users: users.map((user) => user.toObject({ getters: true })),
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // res.json({
-  //   users: DUMMY_USERS,
-  // });
 };
 
 const signupUser = async (req, res, next) => {
@@ -90,32 +69,6 @@ const signupUser = async (req, res, next) => {
   res.status(201).json({
     user: createdUser.toObject({ getters: true }),
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // const { name, email, password } = req.body;
-
-  // const hasUser = DUMMY_USERS.find((user) => user.email === email);
-  // if (hasUser) {
-  //   return next(
-  //     new HttpError(
-  //       "Cannot create user. A user already exists with that email",
-  //       422
-  //     )
-  //   );
-  // }
-
-  // const user = {
-  //   id: uuidv4(),
-  //   name,
-  //   email,
-  //   password,
-  // };
-
-  // DUMMY_USERS.push(user);
-
-  // res.status(201).json({
-  //   user,
-  // });
 };
 
 const loginUser = async (req, res, next) => {
@@ -146,25 +99,6 @@ const loginUser = async (req, res, next) => {
   res.status(200).json({
     message: `${existingUser.name} has logged in`,
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // if (typeof email === "undefined" || typeof password === "undefined") {
-  //   return next(new HttpError("Email or password incorrect", 401));
-  // }
-
-  // const user = DUMMY_USERS.find((user) => {
-  //   if (user.email === email && user.password === password) {
-  //     return user;
-  //   }
-  // });
-
-  // if (typeof user === "undefined") {
-  //   return next(new HttpError("No user found with those credentials", 401));
-  // }
-
-  // res.status(200).json({
-  //   message: `${user.name} has logged in`,
-  // });
 };
 
 exports.getAllUsers = getAllUsers;

@@ -1,24 +1,9 @@
 const mongoose = require("mongoose");
 const HttpError = require("../models/http-error");
-// const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
-
-// let DUMMY_PLACES = [
-//   {
-//     id: "p1",
-//     title: "New Malden",
-//     description: "This is new malden",
-//     location: {
-//       lat: 40.748,
-//       lng: -73.987,
-//     },
-//     address: "15 Effort Street",
-//     creator: "u1",
-//   },
-// ];
 
 const getPlaceByPlaceId = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -43,26 +28,6 @@ const getPlaceByPlaceId = async (req, res, next) => {
     // just makes sure the object is passed back with an actual 'id' key/value
     place: place.toObject({ getters: true }),
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // const place = DUMMY_PLACES.find((p) => {
-  //   return p.id === placeId;
-  // });
-
-  // if (!place) {
-  //   // Using the 'next()' func when there
-  //   // is no 'place' found will essentially pass an
-  //   // error down the line to be picked up by anything
-  //   // i.e. 'app.use(error...)' in the app.js file.
-  //   // Also, we use 'next()' so that it will work with asyncronous code
-  //   return next(
-  //     new HttpError("Could not find a place for the provided place ID", 404)
-  //   );
-  // }
-
-  // res.json({
-  //   place,
-  // });
 };
 
 const getPlacesByUserId = async (req, res, next) => {
@@ -87,27 +52,6 @@ const getPlacesByUserId = async (req, res, next) => {
       place.toObject({ getters: true })
     ),
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // const places = DUMMY_PLACES.filter((p) => {
-  //   return p.creator === userId;
-  // });
-
-  // if (!places || places.length === 0) {
-  //   // Using the 'next()' func when there
-  //   // is no 'place' found will essentially pass an
-  //   // error down the line to be picked up by anything
-  //   // i.e. 'app.use(error...)' in the app.js file.
-  //   // Also, we use 'next()' so that it will work with asyncronous code.
-  //   // AND ALSO: We return so that it does not
-  //   return next(
-  //     new HttpError("Could not find a places for the provided user ID", 404)
-  //   );
-  // }
-
-  // res.json({
-  //   places,
-  // });
 };
 
 const createPlace = async (req, res, next) => {
@@ -187,23 +131,6 @@ const createPlace = async (req, res, next) => {
   }
 
   res.status(201).json({ place: createdPlace });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // // NOTE: Below we set values. But notice the shorthand code, that only location is set to
-  // // coordinates, with the rest having no value set. But this is because
-  // // JS allows us to set a value to it's key without the : semicolon
-  // // ONLY WHEN the name of the value and the variable of the value are the same.
-  // const createPlace = {
-  //   id: uuidv4(),
-  //   title: title,
-  //   description,
-  //   location: coordinates,
-  //   address,
-  //   creator,
-  // };
-
-  // DUMMY_PLACES.push(createPlace); /// unshift(createdPlace)
-  // res.json({ place: createdPlace });
 };
 
 const updatePlace = async (req, res, next) => {
@@ -238,18 +165,6 @@ const updatePlace = async (req, res, next) => {
   res.status(200).json({
     place: place.toObject({ getters: true }),
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // const updatedPlace = { ...DUMMY_PLACES.find((p) => p.id === placeId) };
-  // const placeIndex = DUMMY_PLACES.findIndex((p) => p.id === placeId);
-  // updatedPlace.title = title;
-  // updatedPlace.description = description;
-
-  // DUMMY_PLACES[placeIndex] = updatedPlace;
-
-  // res.status(200).json({
-  //   place: updatedPlace,
-  // });
 };
 
 const deletePlace = async (req, res, next) => {
@@ -291,15 +206,6 @@ const deletePlace = async (req, res, next) => {
   res.status(200).json({
     message: "Place deleted",
   });
-
-  // OLD LOGIC (Prior to Mongoose)
-  // if (!DUMMY_PLACES.filter((p) => p.id !== placeId)) {
-  //   throw new HttpError("Could not find a place for that id", 404);
-  // }
-
-  // res.status(200).json({
-  //   message: "Place deleted",
-  // });
 };
 
 exports.getPlaceByPlaceId = getPlaceByPlaceId;
