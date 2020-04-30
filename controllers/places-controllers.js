@@ -1,8 +1,10 @@
+const mongoose = require("mongoose");
 const HttpError = require("../models/http-error");
 // const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
+const User = require("../models/user");
 
 // let DUMMY_PLACES = [
 //   {
@@ -147,15 +149,44 @@ const createPlace = async (req, res, next) => {
     creator,
   });
 
+  let user;
+
   try {
-    await createdPlace.save();
+    // Check if user is already existing
+    user = await User.findById(creator);
+  } catch (err) {
+    const error = new HttpError(err.toString(), 500);
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Could not find user for provided ID", 404);
+    return next(error);
+  }
+
+  try {
+    // NOTE: The following uses 'sessions' and 'transactions'
+    // to allow us to add data to difference model instances
+    // AND IF THE ACTIONS fail at any time, then it cancels the session
+    // and doesn't make any of the updates at all.
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    // Passing through 'session' object allows us to tie actions to that session
+    await createdPlace.save({ session: session });
+    // NOTE: This use of 'push' is NOT the standard use of JS push().
+    // In this case, Mongoose has it's own push function which adds the place
+    // to the key of 'places' on the instance of the user (i.e. user.places).
+    // It does this behind the scenes and connects all the thingies.
+    user.places.push(createdPlace);
+    await user.save({ session: session });
+    await session.commitTransaction();
   } catch (err) {
     const error = new HttpError("Creating place failed, please try again", 500);
     // Returning next(error) makes sure to exit the request when an error occurs
     return next(error);
   }
 
-  res.json({ place: createdPlace });
+  res.status(201).json({ place: createdPlace });
 
   // OLD LOGIC (Prior to Mongoose)
   // // NOTE: Below we set values. But notice the shorthand code, that only location is set to
@@ -195,7 +226,7 @@ const updatePlace = async (req, res, next) => {
   }
 
   place.title = title;
-  place.description = title;
+  place.description = description;
 
   try {
     await place.save();
@@ -224,16 +255,34 @@ const updatePlace = async (req, res, next) => {
 const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
   let place;
+  let user;
 
   try {
-    place = await Place.findById(placeId);
+    // NOTE: Here we use 'populate' can take a value and
+    // use it to search through other collections and then
+    // we can return data from that document.
+    place = await (await Place.findById(placeId)).populate("creator");
   } catch (err) {
     const error = new HttpError(err.toString(), 500);
     return next(error);
   }
 
+  if (!place) {
+    const error = new HttpError("Could not delete a place for this ID", 404);
+    return next(error);
+  }
+
   try {
-    place.remove();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await place.remove({ session: session });
+    // NOTE: This is where the magic of 'populate()' happens.
+    // So, by using the instance of 'place' we can access the User
+    // (via the 'creator' ID) to get the 'places' on the matching
+    // User instance. We can then access the data in that instance
+    place.creator.places.pull(place);
+    await place.creator.save({ session: session });
+    await session.commitTransaction();
   } catch (err) {
     const error = new HttpError(err.toString(), 500);
     return next(error);

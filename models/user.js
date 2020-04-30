@@ -11,7 +11,10 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
   image: { type: String, required: true },
-  places: { type: String, required: true },
+  // NOTE: We make the 'Place' as a reference, and we also wrap the
+  // object in an array. This is to denote that there will/can be many
+  // places for the one user (one-to-many). This sets up the relationship.
+  places: [{ type: mongoose.Types.ObjectId, required: true, ref: "Place" }],
 });
 
 // Further to setting 'unique' (to make the email faster to)

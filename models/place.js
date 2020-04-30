@@ -11,7 +11,12 @@ const placeSchema = new Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true },
   },
-  creator: { type: String, required: true },
+  // NOTE: The 'type: mongoose.Types.ObjectId' is used to
+  // generate a mongoose ID for the creator. While the 'ref' of 'User
+  // is added so that the place will reference the User model. This
+  // allows us to use the many-to-one pattern of DB structure.
+  // This sets up the relationship.
+  creator: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
 });
 
 // The convention for naming a collection is to use a
