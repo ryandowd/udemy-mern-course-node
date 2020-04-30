@@ -1,7 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const url =
+  "mongodb+srv://ryand:ryand123@cluster0-oustz.mongodb.net/places_app?retryWrites=true&w=majority";
 
 const placesRoutes = require("./routes/places-routes");
+const usersRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
 
 const app = express();
@@ -15,6 +19,8 @@ app.use(bodyParser.json());
 
 // Adding the places routes as middleware
 app.use("/api/places", placesRoutes);
+// Adding the users routes as middleware
+app.use("/api/users", usersRoutes);
 
 // This middleware code will only run if the above app.use()
 // does not return a successful status of 201. Therefore, since it does not
@@ -37,5 +43,12 @@ app.use((error, req, res, next) => {
   res.json({ message: error.message || "An unknown error occurred!" });
 });
 
-// Set the server to listen to port 5000
-app.listen(5000);
+mongoose
+  .connect(url)
+  .then(() => {
+    // Set the server to listen to port 5000
+    app.listen(5000);
+  })
+  .catch((error) => {
+    console.log("Connection error!");
+  });
