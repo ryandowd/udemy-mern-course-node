@@ -89,7 +89,7 @@ const signupUser = async (req, res, next) => {
       // It will only exist in the server side and therefore cannot be found by a user.
       // It is the string that is used to encrypt and decrypt the token. Thus the token
       // can never be replicated or faked because the key is never on the FE.
-      "supersecret_dont_share",
+      process.env.JWT_KEY,
       // We can also add a expiration time
       { expiresIn: "1h" }
     );
@@ -157,7 +157,7 @@ const loginUser = async (req, res, next) => {
       // NOTE: On the 'login' process, we want to use the same private key
       // because if the user signs in a makes a request we want to be able to
       // validate them on the server
-      "supersecret_dont_share",
+      process.env.JWT_KEY,
       { expiresIn: "1h" }
     );
   } catch (err) {

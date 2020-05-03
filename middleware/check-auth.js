@@ -19,7 +19,7 @@ module.exports = (req, res, next) => {
       throw new Error("Auth failed!");
     }
     // IF there is a token, then we use the private key to check it and verify if its valid
-    const decodedToken = jwt.verify(token, "supersecret_dont_share");
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
     // Now we attach 'userData' to the req object. And from now on this 'userData'
     // object will exist on the req object and can be used by subsequent middleware
     req.userData = { userId: decodedToken.userId };
