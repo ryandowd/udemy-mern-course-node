@@ -104,7 +104,7 @@ mongoose
   .connect(url)
   .then(() => {
     // Set the server to listen to port 5000
-    app.listen(5000);
+    app.listen(process.env.PORT || 5000);
   })
   .catch((error) => {
     console.log("Connection error!");
