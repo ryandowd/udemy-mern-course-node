@@ -11,7 +11,8 @@ router.post(
   // Here we add the middleware into the incoming request
   // NOTE: We use the 'single()' multer command to say that we
   // are getting a single image. This will extract the image from
-  // the incoming request.
+  // the incoming request. We use the value of 'image' because
+  // that is the value key that the image data will be send in.
   fileUpload.single("image"),
   [
     check("password")

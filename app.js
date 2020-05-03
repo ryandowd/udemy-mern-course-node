@@ -1,3 +1,12 @@
+// -----------------------
+// IMPORTANT TO REMEMBER: This app.js file (or sometimes called the server.js file)
+// Is essentially just a funnel for our middleware (custom and 3rd party) to do things
+// with the incoming requests. So we either have a request that is handled by the middleware
+// or we don't (i.e. if a request is sent to the wrong url etc)
+// -----------------------
+
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -16,6 +25,13 @@ const app = express();
 // data that is stored in it. Another option is 'urlencoded' data but
 // in this case we are passing data in via JSON.
 app.use(bodyParser.json());
+
+// NOTE: Here we add some more custom middleware, where we ALLOW
+// requests that are requesting from '/uploads/images' to actually
+// reach that destination and get the image files.
+// NOTE: Therefore, express.static() is built in middleware that
+// servers the static file, and does not excecute it etc
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 // Regristering a middleware to allow for CORS. It does this
 // by adding certain headers to the response, so that later,
@@ -66,6 +82,16 @@ app.use((req, res, next) => {
 // This will excecute if any code before it
 // (i.e. the app.use() above, returns an error)
 app.use((error, req, res, next) => {
+  // NOTE: Multer, acting as middleware, automatically adds a 'file'
+  // value to the request IF a file exists in the request. We can
+  // then use this to handle any rollbacks within this error middleware
+  // (i.e. app.use() etc ).
+  if (req.file) {
+    // FS is a 'File System' plugin. And '.unlink()' is a command to del a file
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
   // If a response has already been sent
   if (res.headerSent) {
     return next(error);
