@@ -106,7 +106,7 @@ const createPlace = async (req, res, next) => {
     // NOTE: The following uses 'sessions' and 'transactions'
     // to allow us to add data to difference model instances
     // AND IF THE ACTIONS fail at any time, then it cancels the session
-    // and doesn't make any of the updates at all.
+    // and doesn't make any of the updates at all..
     const session = await mongoose.startSession();
     session.startTransaction();
     // Passing through 'session' object allows us to tie actions to that session
