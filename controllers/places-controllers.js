@@ -87,6 +87,8 @@ const createPlace = async (req, res, next) => {
     creator: req.userData.userId,
   });
 
+  console.log(createdPlace, "createdPlace");
+
   let user;
 
   try {

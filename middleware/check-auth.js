@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const HttpError = require("../models/http-error");
 
+const privateKey = process.env.JWT_KEY || "supersecret_dont_share";
+
 module.exports = (req, res, next) => {
   // NOTE: Here we need to allow the request to continue (i.e. return next())
   // when the request has a request method of 'OPTIONS'. Options is essentially just
@@ -19,7 +21,7 @@ module.exports = (req, res, next) => {
       throw new Error("Auth failed!");
     }
     // IF there is a token, then we use the private key to check it and verify if its valid
-    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
+    const decodedToken = jwt.verify(token, privateKey);
     // Now we attach 'userData' to the req object. And from now on this 'userData'
     // object will exist on the req object and can be used by subsequent middleware
     req.userData = { userId: decodedToken.userId };

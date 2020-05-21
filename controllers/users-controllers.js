@@ -6,6 +6,8 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 
+const privateKey = process.env.JWT_KEY || "supersecret_dont_share";
+
 const getAllUsers = async (req, res, next) => {
   let users;
 
@@ -89,7 +91,7 @@ const signupUser = async (req, res, next) => {
       // It will only exist in the server side and therefore cannot be found by a user.
       // It is the string that is used to encrypt and decrypt the token. Thus the token
       // can never be replicated or faked because the key is never on the FE.
-      process.env.JWT_KEY,
+      privateKey,
       // We can also add a expiration time
       { expiresIn: "1h" }
     );
@@ -157,7 +159,7 @@ const loginUser = async (req, res, next) => {
       // NOTE: On the 'login' process, we want to use the same private key
       // because if the user signs in a makes a request we want to be able to
       // validate them on the server
-      process.env.JWT_KEY,
+      privateKey,
       { expiresIn: "1h" }
     );
   } catch (err) {
